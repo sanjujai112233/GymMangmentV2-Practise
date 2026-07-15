@@ -1,9 +1,12 @@
 using System.Net.Cache;
+using System.Runtime.CompilerServices;
 using AutoMapper;
 using GymMangV2.Application.DTOs.Members;
 using GymMangV2.Application.Exceptions;
 using GymMangV2.Application.Interfaces;
 using GymMangV2.Domain.Entities;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace GymMangV2.Application.Service;
 
@@ -11,12 +14,19 @@ public class MemberService : IMemberService
 {
     private readonly IMemberRepository _repository;
     private readonly IMapper _mapper;
-
-    public MemberService(IMemberRepository repository, IMapper mapper)
+    private readonly ILogger<MemberService> _logger;
+    private readonly IMemoryCache _cache;
+    private const string MembershipPlansCacheKey =
+    "membership-plans";
+    public MemberService(IMemberRepository repository,
+     IMapper mapper,
+      ILogger<MemberService> logger,
+      IMemoryCache cache)
     {
         _repository = repository;
         _mapper = mapper;
-
+        _logger = logger;
+        _cache = cache;
     }
 
     public async Task<MemberResponseDto> CreateAsync(CreateMemberRequestDto request)
@@ -47,12 +57,37 @@ public class MemberService : IMemberService
         //     Phone = member.Phone,
         //     TrainerName = ""
         // };
-        return _mapper.Map<MemberResponseDto>(member);
+
+
+        _logger.LogInformation(
+            "Member Created Successfullu. MemberId = {Member ID}",
+            member.Id
+        );
+        _cache.Remove(MembershipPlansCacheKey);
+        var memberdto = _mapper.Map<MemberResponseDto>(member);
+
+        _cache.Set(
+            MembershipPlansCacheKey,
+            memberdto,
+            TimeSpan.FromMinutes(30)
+        );
+
+
+        return memberdto;
 
     }
 
+
     public async Task<List<MemberResponseDto>> GetAllAsync()
     {
+        if (_cache.TryGetValue(
+            MembershipPlansCacheKey,
+            out List<MemberResponseDto>? cachemembers
+        ))
+        {
+            return cachemembers!;
+        }
+
         var members = await _repository.GetAllAsync();
         // return members.Select(member => new MemberResponseDto
         // {
@@ -62,7 +97,17 @@ public class MemberService : IMemberService
         //     Phone = member.Phone,
         //     TrainerName = member.Trainer?.FullName ?? ""
         // }).ToList();
-        return _mapper.Map<List<MemberResponseDto>>(members);
+
+        //return _mapper.Map<List<MemberResponseDto>>(members);
+        var membersDto = _mapper.Map<List<MemberResponseDto>>(members);
+
+        _cache.Set(
+    MembershipPlansCacheKey,
+    membersDto,
+    TimeSpan.FromMinutes(30));
+
+
+        return membersDto;
     }
 
 
@@ -78,7 +123,7 @@ public class MemberService : IMemberService
             TrainerName = member.Trainer?.FullName ?? ""
         };
     }
-    
+
 
     public async Task UpdateAsync(int id, UpdateMemberRequestDto request)
     {

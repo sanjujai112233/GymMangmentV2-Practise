@@ -1,3 +1,4 @@
+using System.Dynamic;
 using GymMangV2.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,8 @@ public class GymDbContext : DbContext
     public DbSet<Attendance> Attendances => Set<Attendance>();
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<NotificationQueue> NotificationQueues => Set<NotificationQueue>();
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

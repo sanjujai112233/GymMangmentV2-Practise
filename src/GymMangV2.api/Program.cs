@@ -15,6 +15,7 @@ using GymMangV2.Infrastructure.Repositories;
 using GymMangV2.Application.Service;
 using GymMangV2.api.Middelware;
 using GymMangV2.Application.Mappings;
+using GymMangV2.api.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +37,9 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthServices,AuthService>();
 builder.Services.AddScoped<IMemberRepository,MemberRepository>();
 builder.Services.AddScoped<IMemberService, MemberService>();
+//builder.Services.AddScoped<MembershipRepository>();
 builder.Services.AddAutoMapper(typeof(MemberProfile));
+builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -84,7 +87,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-
+builder.Services.AddHostedService<MembershipExpiryBackgroundService>();
 
 builder.Services.AddSwaggerGen(options =>
 {

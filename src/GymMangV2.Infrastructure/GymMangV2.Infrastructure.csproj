@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GymMangV2.Application\GymMangV2.Application.csproj" />
+    <ProjectReference Include="..\GymMangV2.Domain\GymMangV2.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
