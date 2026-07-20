@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+
+  gym-api:
+    build:
+      context: .
+      dockerfile: src/GymMangV2.api/Dockerfile
+    container_name: gym-api
+    ports:
+      - "5000:8080"
+    depends_on:
+      - sql
+      - redis
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+      ConnectionStrings__DefaultConnection: "Server=sql;Database=GymDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True"
+
+      Redis__ConnectionString: "redis:6379"
+
+    networks:
+      - gym-network
+
+  sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: gym-sql
+
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong@Passw0rd"
+
+    ports:
+      - "1433:1433"
+
+    volumes:
+      - sql-data:/var/opt/mssql
+
+    networks:
+      - gym-network
+
+  redis:
+    image: redis:latest
+    container_name: gym-redis
+
+    ports:
+      - "6379:6379"
+
+    networks:
+      - gym-network
+
+networks:
+  gym-network:
+
+volumes:
+  sql-data:
