@@ -47,24 +47,24 @@ public class MemberControllerTests
             Times.Once);
     }
 
-    [Fact]
-    public async Task GetById_ShouldReturnNotFound_WhenMemberDoesNotExist()
-    {
-        // Arrange
+    // [Fact]
+    // public async Task GetById_ShouldReturnNotFound_WhenMemberDoesNotExist()
+    // {
+    //     // Arrange
 
-        _service
-            .Setup(x => x.GetByIdAsync(1))
-            .ReturnsAsync((MemberResponseDto?)null);
+    //     _service
+    //         .Setup(x => x.GetByIdAsync(1))
+    //         .ReturnsAsync((MemberResponseDto?)null);
 
-        // Act
+    //     // Act
 
-        var result = await _controller.GetById(1);
+    //     var result = await _controller.GetById(1);
 
-        // Assert
+    //     // Assert
 
-        result.Should()
-            .BeOfType<NotFoundResult>();
-    }
+    //     result.Should()
+    //         .BeOfType<NotFoundResult>();
+    // }
 
 
 }

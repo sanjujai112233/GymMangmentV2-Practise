@@ -1,0 +1,40 @@
+name: GymMangV2 CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - run: dotnet restore GymMangV2.sln
+
+      - run: dotnet build GymMangV2.sln --configuration Release --no-restore
+
+      - run: dotnet test GymMangV2.sln --configuration Release --no-build
+
+  docker:
+
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t gym-api .
