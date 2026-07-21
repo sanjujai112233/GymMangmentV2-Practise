@@ -1,0 +1,32 @@
+name: GymMangV2 Build Pipeline  
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Install .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore Packages
+        run: dotnet restore GymMangV2.sln
+
+      - name: Build Solution
+        run: dotnet build GymMangV2.sln --configuration Release --no-restore
