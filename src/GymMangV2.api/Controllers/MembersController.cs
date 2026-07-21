@@ -1,4 +1,5 @@
 using GymMangV2.Application.DTOs.Members;
+using GymMangV2.Application.Interfaces;
 using GymMangV2.Application.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -12,9 +13,9 @@ namespace GymMangV2.api.Controllers;
 [Authorize]
 public class MembersController : ControllerBase
 {
-    private readonly MemberService _memberService;
+    private readonly IMemberService _memberService;
 
-    public MembersController(MemberService memberService, IMemoryCache cache)
+    public MembersController(IMemberService memberService, IMemoryCache cache)
     {
         _memberService = memberService;
 

@@ -1,11 +1,12 @@
 using AutoMapper;
-using AutoMapper.Execution;
-using Castle.Core.Logging;
+//using AutoMapper.Execution;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using GymMangV2.Application.DTOs.Members;
 using GymMangV2.Application.Exceptions;
 using GymMangV2.Application.Interfaces;
 using GymMangV2.Application.Service;
+using GymMangV2.Domain.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 
@@ -14,21 +15,21 @@ public class MemberServicesTests
     private readonly Mock<IMemberRepository> _memberRepo;
     private readonly Mock<IMapper> _mapper;
     private readonly MemberService _service;
-    private readonly Mock<ILogger> _logger;
+    private readonly Mock<ILogger<MemberService>> _logger;
     private readonly Mock<IMemoryCache> _cache;
 
     public MemberServicesTests()
     {
         _memberRepo = new Mock<IMemberRepository>();
         _mapper = new Mock<IMapper>();
-        _logger = new Mock<ILogger>();
+        _logger = new Mock<ILogger<MemberService>>();
         _cache = new Mock<IMemoryCache>();
-        // _service = new MemberService(
-        //     _memberRepo.Object,
-        //     _mapper.Object,
-        //     _logger.Object,
-        //     _cache.Object
-        // );
+        _service = new MemberService(
+            _memberRepo.Object,
+            _mapper.Object,
+            _logger.Object,
+            _cache.Object
+        );
     }
 
     public async Task CreateAsync_ShouldCreateMember_WhenPhoneDoesNotExist()
@@ -69,7 +70,7 @@ public class MemberServicesTests
         result.Should().NotBeNull();
         result.FullName.Should().Be("Rahul");
 
-        //_memberRepo.Verify(x => x.AddAsync(member), Times.Once);
+        _memberRepo.Verify(x => x.AddAsync(member), Times.Once);
     }
 
     [Fact]
@@ -95,9 +96,9 @@ public class MemberServicesTests
         await action.Should()
             .ThrowAsync<BusinessException>();
 
-        // _memberRepo.Verify(x =>
-        //     x.AddAsync(It.IsAny<Member>()),
-        //     Times.Never);
+        _memberRepo.Verify(x =>
+            x.AddAsync(It.IsAny<Member>()),
+            Times.Never);
     }
     [Fact]
     public async Task GetByIdAsync_ShouldReturnMember_WhenExists()
@@ -106,9 +107,9 @@ public class MemberServicesTests
 
         var member = new Member();
 
-        // _memberRepo
-        //     .Setup(x => x.GetByIdAsync(1))
-        //     .ReturnsAsync(member);
+        _memberRepo
+            .Setup(x => x.GetByIdAsync(1))
+            .ReturnsAsync(member);
 
         _mapper
             .Setup(x => x.Map<MemberResponseDto>(member))
