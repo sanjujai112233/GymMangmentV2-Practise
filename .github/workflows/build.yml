@@ -1,4 +1,4 @@
-name: GymMangV2 Build Pipeline  
+name: GymMangV2 CI
 
 on:
   push:
@@ -6,44 +6,35 @@ on:
       - main
       - develop
 
-  pull_request:
-    branches:
-      - main
-
 jobs:
+
   build:
 
     runs-on: ubuntu-latest
 
     steps:
 
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install .NET 8
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: Restore Packages
-        run: dotnet restore GymMangV2.sln
+      - run: dotnet restore GymMangV2.sln
 
-      - name: Build Solution
-        run: dotnet build GymMangV2.sln --configuration Release --no-restore
-      
-      - name: Test 
-        run : dotnet test GymMangV2.sln --configuration Release --no-build
-   
-    docker: 
+      - run: dotnet build GymMangV2.sln --configuration Release --no-restore
 
-      needs: build 
+      - run: dotnet test GymMangV2.sln --configuration Release --no-build
 
-      runs-on: ubuntu-latest
+  docker:
 
-      steps: 
+    needs: build
 
-        - uses: actions/checkout@v4
+    runs-on: ubuntu-latest
 
-        - name: Build docker Image
-          run: docker build -t gym-api .
+    steps:
 
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t gym-api .
