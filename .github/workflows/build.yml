@@ -30,3 +30,20 @@ jobs:
 
       - name: Build Solution
         run: dotnet build GymMangV2.sln --configuration Release --no-restore
+      
+      - name: Test 
+        run : dotnet test GymMangV2.sln --configuration Release --no-build
+   
+    docker: 
+
+      needs: build 
+
+      runs-on: ubuntu-latest
+
+      steps: 
+
+        - uses: actions/checkout@v4
+
+        - name: Build docker Image
+          run: docker build -t gym-api .
+
